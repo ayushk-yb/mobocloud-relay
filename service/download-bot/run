@@ -1,0 +1,7 @@
+#!/data/data/com.termux/files/usr/bin/sh
+# runit run script for the download-bot termux-service.
+# Mirrors the convention used by the existing mobocloud-dashboard service.
+exec 2>&1
+cd "$PREFIX/opt/download-bot" || exit 1
+export PYTHONPATH="$PREFIX/opt/download-bot/src"
+exec python3 -m download_bot.main
