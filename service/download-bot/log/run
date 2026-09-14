@@ -1,3 +1,8 @@
 #!/data/data/com.termux/files/usr/bin/sh
 mkdir -p "$LOGDIR/sv/download-bot"
+# Explicit, small rotation cap: this bot logs one line per message, so it
+# never needs anywhere near the svlogd default. 100KB x 5 files (~500KB total).
+if [ ! -f "$LOGDIR/sv/download-bot/config" ]; then
+  printf 's100000\nn5\n' > "$LOGDIR/sv/download-bot/config"
+fi
 exec svlogd "$LOGDIR/sv/download-bot"
