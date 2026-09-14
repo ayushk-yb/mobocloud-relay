@@ -113,8 +113,13 @@ chmod 700 ~/.config/download-bot
 chmod 600 ~/.config/download-bot/download-bot.env
 nano ~/.config/download-bot/download-bot.env   # fill in real values (see below)
 
-# 3. Install the runit service (mirrors this repo's service/download-bot/ layout)
-ln -s "$PREFIX/opt/download-bot/service/download-bot" "$PREFIX/var/service/download-bot"
+# 3. Install the runit service. A real directory under $PREFIX/var/service
+#    (not a symlink into the repo) matches how your other services are set
+#    up, and keeps runit's own runtime state out of the git checkout.
+mkdir -p "$PREFIX/var/service/download-bot/log"
+cp "$PREFIX/opt/download-bot/service/download-bot/run" "$PREFIX/var/service/download-bot/run"
+cp "$PREFIX/opt/download-bot/service/download-bot/log/run" "$PREFIX/var/service/download-bot/log/run"
+chmod +x "$PREFIX/var/service/download-bot/run" "$PREFIX/var/service/download-bot/log/run"
 
 # 4. Start it
 sv up download-bot
@@ -171,6 +176,18 @@ AUTHORIZED_CHAT_IDS=123456789,987654321
 ```
 
 Then `sv restart download-bot` to pick up the change.
+
+## Updating
+
+```bash
+cd "$PREFIX/opt/download-bot" && git pull
+sv restart download-bot
+```
+
+If a pull changes anything under `service/download-bot/`, re-copy those files
+into `$PREFIX/var/service/download-bot/` (step 3 above) before restarting —
+the running service reads from `$PREFIX/var/service`, not from the repo
+checkout.
 
 ## Starting / stopping the service
 
